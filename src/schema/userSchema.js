@@ -7,6 +7,21 @@ const userCreateSchema = [
   }),
 ];
 
+const changeUsernameSchema = [
+  body("username").custom((value) => {
+    var usernameRegex = /^[a-zA-Z0-9\-]+$/;
+
+    if (!usernameRegex.test(value)) {
+      throw new Error(
+        "username can only contain alphanumeric and - characters."
+      );
+    } else if (value && (value.length < 3 || value.length > 32)) {
+      throw new Error("username must be between 3-32 character long.");
+    }
+    return true;
+  }),
+];
+
 const authUserSchema = [
   body("accountNumber", "accountNumber must be 64 character long..").isLength({
     min: 64,
@@ -22,4 +37,4 @@ const authUserSchema = [
   }),
 ];
 
-module.exports = { userCreateSchema, authUserSchema };
+module.exports = { userCreateSchema, authUserSchema, changeUsernameSchema };

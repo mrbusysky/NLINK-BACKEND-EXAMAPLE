@@ -10,29 +10,17 @@ const governorRequestSchema = mongoose.Schema(
       minLength: 64,
       maxLength: 64,
     },
-    signature: {
-      type: String,
-      required: true,
-      minLength: 128,
-      maxLength: 128,
-    },
-    nonce: {
-      type: Number,
-      required: true,
-    },
-    username: {
-      type: String,
-      required: true,
-    },
     paymentStatus: {
       type: String,
       enum: PaymentStatus,
       default: PaymentStatus.PENDING,
     },
-    transaction: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Transaction",
-    },
+    transactions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Transaction",
+      },
+    ],
   },
   {
     timestamps: true,

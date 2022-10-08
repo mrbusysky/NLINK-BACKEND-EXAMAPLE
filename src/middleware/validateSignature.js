@@ -10,14 +10,8 @@ const validateSignature = (req, res, next) => {
   );
 
   if (!isValidSignature) {
-    return res.status(400).json({
-      errors: [
-        {
-          msg: "Signature validation failed: Please sign the message with correct private key..",
-          param: "signature",
-          location: "body",
-        },
-      ],
+    return res.status(401).json({
+      message: "Invalid signature.",
     });
   }
 

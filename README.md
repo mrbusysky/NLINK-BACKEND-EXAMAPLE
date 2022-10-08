@@ -34,6 +34,12 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 Now navigate to `http://127.0.0.1:3000/` and the server should be running.
 
-Backend for auth and api for the website and bot
+### Deploy to deta
 
-Development Server: https://7nfr0m.deta.dev/
+[![Deploy](https://button.deta.dev/1/svg)](https://go.deta.dev/deploy?repo=https://github.com/LeapChain/Voting-Backend)
+
+### Deployed Servers
+
+Staging Server: https://7hy843.deta.dev/
+
+Production Server: https://7nfr0m.deta.dev/

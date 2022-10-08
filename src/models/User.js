@@ -19,6 +19,11 @@ const UserSchema = new mongoose.Schema(
       default: UserType.GENERAL,
     },
     username: String,
+    usernameChanged: {
+      type: Boolean,
+      default: false,
+    },
+    totalVotes: Number,
   },
   {
     timestamps: true,

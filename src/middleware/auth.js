@@ -1,33 +1,34 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const { JWT_SECRET_KEY } = require("../constants");
 
-const verifyToken = (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
   if (token == null) {
     return res.status(401).json({
-      errors: {},
-      _message: "Authentication Failed.",
-      name: "Unauthenticated",
       message:
         "Authentication Failed: Please include `Authorization: Bearer JWT` in your headers.",
     });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, _id) => {
-    if (err) {
-      return res.status(401).json({
-        errors: {},
-        _message: "Authentication Failed.",
-        name: "Unauthenticated",
-        message: "Authentication Failed: Invalid access token.",
+  try {
+    const payload = jwt.verify(token, JWT_SECRET_KEY);
+    const user = await User.findById(payload._id);
+    if (!user) {
+      return res.status(404).json({
+        message:
+          "User validation failed: User associated with that JWT does not exist.",
       });
     }
-
-    req.user = _id;
-
-    return next();
-  });
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      message: "Authentication Failed: Invalid access token.",
+    });
+  }
 };
 
 module.exports = verifyToken;

@@ -1,0 +1,47 @@
+name: Deploy to deta production once pushed to main branch.
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  MONGO_URI: ${{ secrets.PRODUCTION_MONGO_URI }}
+  JWT_SECRET_KEY: ${{ secrets.PRODUCTION_JWT_SECRET_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: BogDAAAMN/deta-deploy-action@v1.0.1
+        with:
+          deta-access-token: ${{ secrets.DETA_ACCESS_TOKEN }}
+          deta-name: ${{ secrets.PRODUCTION_DETA_MICRO }}
+      - run: |
+          # Create .env
+          echo "MONGO_URI=${{ env.MONGO_URI }}" | tee -a .env > /dev/null
+          echo "JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }}" | tee -a .env > /dev/null
+          # export deta access token to update .env file
+          export DETA_ACCESS_TOKEN=${{ secrets.DETA_ACCESS_TOKEN }}
+          ~/.deta/bin/deta update -e .env
+          ~/.deta/bin/deta visor enable

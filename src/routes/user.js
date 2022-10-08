@@ -1,47 +1,29 @@
 const express = require("express");
 const router = express.Router();
 
-const { createUser } = require("../controllers/user");
-const { createUserVote, cancelUserVote } = require("../controllers/vote");
-const { applyForGovernor } = require("../controllers/governance");
+const { createUser, changeUsername } = require("../controllers/user");
 
 const {
   validateRequestSchema,
 } = require("../middleware/validateRequestSchema");
-const { validateSignature } = require("../middleware/validateSignature");
-const userExists = require("../middleware/userExists");
+const auth = require("../middleware/auth");
+const { usernameExists, canChangeUsername } = require("../middleware/user");
 
-const { userCreateSchema } = require("../schema/userSchema");
-const { governorRequestSchema } = require("../schema/governanceSchema");
-const { userVoteSchema } = require("../schema/voteSchema");
+const {
+  userCreateSchema,
+  changeUsernameSchema,
+} = require("../schema/userSchema");
 
-router.post("/create", userCreateSchema, validateRequestSchema, createUser);
+router.post("/", userCreateSchema, validateRequestSchema, createUser);
 
-router.post(
-  "/apply",
-  governorRequestSchema,
+router.patch(
+  "/",
+  auth,
+  changeUsernameSchema,
   validateRequestSchema,
-  userExists,
-  validateSignature,
-  applyForGovernor
-);
-
-router.post(
-  "/:id/vote",
-  userVoteSchema,
-  validateRequestSchema,
-  userExists,
-  validateSignature,
-  createUserVote
-);
-
-router.post(
-  "/:id/unvote",
-  userVoteSchema,
-  validateRequestSchema,
-  userExists,
-  validateSignature,
-  cancelUserVote
+  usernameExists,
+  canChangeUsername,
+  changeUsername
 );
 
 module.exports = router;
